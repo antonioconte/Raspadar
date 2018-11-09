@@ -8,11 +8,11 @@ from display import draw
 import socket
 from random import *
 
+###### Socket setting
 UDP_IP_ADDRESS = ""
 UDP_PORT_NO = 12000
 
 serverSock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-
 serverSock.bind((UDP_IP_ADDRESS, UDP_PORT_NO))
 
 # initialize the program
