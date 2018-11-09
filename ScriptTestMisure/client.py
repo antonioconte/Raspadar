@@ -1,13 +1,12 @@
 import socket
+from config import addr, port
+import time  
+import random
 import RPi.GPIO as GPIO  # Import GPIO library
-import time  # Import time library
 
 GPIO.setmode(GPIO.BCM)  # Set GPIO pin numbering
-
 TRIG = 19  # GIALLO
 ECHO = 26  # ARANCIONE
-
-# print("Distance measurement in progress")
 
 GPIO.setup(TRIG, GPIO.OUT)  # Set pin as GPIO out
 GPIO.setup(ECHO, GPIO.IN)  # Set pin as GPIO in
@@ -21,7 +20,6 @@ def computation_distance(pulse_duration):
 
 
 def measure():
-
     GPIO.output(TRIG, False) 
     GPIO.output(TRIG, True)  # Set TRIG as HIGH
     time.sleep(0.00001)  # Delay of 0.00001 seconds
@@ -42,30 +40,22 @@ def measure_average():
     # This function takes 3 measurements and
     # returns the average.
     distance1 = measure()
-    time.sleep(0.1)
-    distance2 = measure()
-    time.sleep(0.1)
-    distance3 = measure()
-    distance = distance1 + distance2 + distance3
-    distance = distance / 3
-    return float(distance)
+    # time.sleep(0.1)
+    # distance2 = measure()
+    # time.sleep(0.1)
+    # distance3 = measure()
+    # distance = distance1 + distance2 + distance3
+    # distance = distance / 3
+    return float(distance1)
 
-addr = "192.168.43.117"
-port = 12000
-msg = 124
+
 
 client = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-l = []
-for i in range(10):
-    dist = measure_average()
-    l.append(dist)
-    # msg = "Distance: %.2f cm" % dist
-    # msg = "Distance: %.2f cm"
-    # client.sendto(str(msg),(addr,port))
-    msg = "> " + str(i+1) + " iterazione!"
-    client.sendto(str(msg),(addr,port))
-    time.sleep(1)
+for i in range(100):
+    # dist = measure_average()
+    dist = measure()
+    client.sendto(str(dist),(addr,port))
+    time.sleep(0.01)
 
-res = "Min: [" + str(round(min(l),2)) +"] - Avg: [" + str(round(sum(l)/10.0,2)) + "] - Max: [" + str(round(max(l),2)) + "]"
-client.sendto(str(res),(addr,port))
+client.sendto("-1",(addr,port))
 GPIO.cleanup()
