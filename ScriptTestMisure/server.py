@@ -2,8 +2,6 @@ import socket as s
 from config import addr, port
 import pandas as pd
 import numpy as np
-import time
-import random
 import sys
 
 if len(sys.argv) < 2:
