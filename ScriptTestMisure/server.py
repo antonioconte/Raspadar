@@ -1,5 +1,4 @@
 import socket as s
-from ipaddr import getLocalIp
 from config import addr, port
 import pandas as pd
 import numpy as np
@@ -21,7 +20,6 @@ def error_rate(l):
 
 filename = "Misure/" + sys.argv[1] + ".csv"
 
-print("> SERVER: ", getLocalIp())
 server =  s.socket(s.AF_INET, s.SOCK_DGRAM)
 server.bind((addr, port))
 

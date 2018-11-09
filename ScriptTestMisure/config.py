@@ -1,3 +1,4 @@
 # ip server   
-addr = "192.168.1.138"
+# Emilio: DESKTOP-2GI939L
+addr = "DESKTOP-2GI939L"
 port = 12000
