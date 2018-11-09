@@ -1,3 +1,3 @@
 # Raspadar
-Nome provvissorio per il progetto di Fisica dei Sistemi Complessi
+Nome provvisorio per il progetto di Fisica dei Sistemi Complessi
 
