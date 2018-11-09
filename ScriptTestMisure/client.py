@@ -52,10 +52,10 @@ def measure_average():
 
 client = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 for i in range(100):
-    # dist = measure_average()
-    dist = measure()
-    client.sendto(str(dist),(addr,port))
-    time.sleep(0.01)
+ #  dist = measure_average()
+   dist = measure()
+   client.sendto(str(dist),(addr,port))
+   time.sleep(0.01)
 
 client.sendto("-1",(addr,port))
 GPIO.cleanup()

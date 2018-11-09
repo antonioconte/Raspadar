@@ -21,7 +21,7 @@ def error_rate(l):
 filename = "Misure/" + sys.argv[1] + ".csv"
 
 server =  s.socket(s.AF_INET, s.SOCK_DGRAM)
-server.bind((addr, port))
+#server.bind((addr, port))
 
 mList = []
 while True:
