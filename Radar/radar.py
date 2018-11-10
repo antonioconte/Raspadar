@@ -60,6 +60,7 @@ try:
         # detect if close is pressed to stop the program
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
+                #set servomotore a 0 gradi
                 raise KeyboardInterrupt
         
     
