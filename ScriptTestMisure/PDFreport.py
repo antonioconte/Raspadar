@@ -10,7 +10,7 @@ class HTML2PDF(FPDF, HTMLMixin):
 pdf = HTML2PDF()
 
 def simple_table_html(m):
-    data = pd.read_csv("CSV/"+m+".csv") 
+    data = pd.read_csv("DATA/CSV/"+m+".csv") 
  
     doc = "<h2>"+m+"</h2>"
     doc += """<table border="0" align="center" width="80%">
