@@ -92,8 +92,8 @@ def draw(radarDisplay, targets, angle, distance, fontRenderer):
     for angle in list(targets):
     
         # calculate the coordinates and the remoteness of the target
-        c = math.sin(math.radians(targets[angle].angle)) * 400.0
-        d = math.cos(math.radians(targets[angle].angle)) * 400.0
+        c = math.sin(math.radians(targets[angle].angle)) * 450.0
+        d = math.cos(math.radians(targets[angle].angle)) * 450.0
 	    # change the scale if the range is changed
         e = math.sin(math.radians(targets[angle].angle)) * (450 / distMax) * targets[angle].distance
         f = math.cos(math.radians(targets[angle].angle)) * (450 / distMax) * targets[angle].distance
@@ -106,8 +106,7 @@ def draw(radarDisplay, targets, angle, distance, fontRenderer):
         #pygame.draw.circle(radarDisplay, targets[angle].color,(500 - int(f), 590 - int(e)) , 7)
 
         #Draw Line
-        # draw the line indicating the target   (500 - int(f), 590 - int(e)), (495 - int(f), 585 - int(e))
-        #pygame.draw.line(radarDisplay, targets[angle].color, (505 - int(f), 595 - int(e)), (495 - int(f), 585 - int(e)), 10)
+        #pygame.draw.line(radarDisplay, targets[angle].color, (500 - int(f), 590 - int(e)), (500 - int(d), 590 - int(c)), 3)
 
 
         # fading
