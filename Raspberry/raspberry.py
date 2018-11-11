@@ -7,7 +7,7 @@ import sys
 
 
 # Socket setup
-UDP_IP_ADDRESS = "192.168.1.102"
+UDP_IP_ADDRESS = "localhost"
 UDP_PORT_NO = 12000
 clientSock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
