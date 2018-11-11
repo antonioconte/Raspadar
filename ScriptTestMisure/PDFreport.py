@@ -28,6 +28,7 @@ def simple_table_html(m):
         row = data.loc[i]
         doc +="<tr><td align='center'>{}</td><td align='center'>{}</td><td align='center'>{}</td><td align='center'>{}</td><td align='center'>{}</td></tr>".format(distance[i],row["min"],row["max"],row["avg"],row["err"])
     doc += "</tbody></table>"
+    doc += '<img src="DATA/Graph/'+m+'.png" align="center" width="450">'
  
     pdf.add_page()
     pdf.write_html(doc)
