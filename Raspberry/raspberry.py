@@ -4,6 +4,7 @@ import socket
 import time
 import signal
 import sys
+import numpy as np
 
 
 # Socket setup
@@ -35,6 +36,8 @@ GPIO.setup(trig, GPIO.OUT)
 GPIO.setup(echo, GPIO.IN)
 
 
+relevations = []
+
 def buzzSlow():
     buzzer.beep(0.2, 0.4)
     time.sleep(0.6)
@@ -64,16 +67,17 @@ def red_light():
     #buzzFast()
 
 def led_allert(distance):
-    if distance >= 25:
+    if meanDistance >= 25:
         green_light()
-    elif 10 < distance < 25:
+    elif 10 < meanDistance < 25:
         yellow_light()
-    elif distance <= 10:
+    elif meanDistance <= 10:
         red_light()
 
 
 try:
     while True:
+
         # set Trigger to HIGH
         GPIO.output(trig, True)
         # set Trigger after 0.01ms to LOW
@@ -95,10 +99,19 @@ try:
         TimeElapsed = stopTime - startTime
         # multiply with the sonic speed (34300 cm/s)
         # and divide by 2, because there and back
-        distance = (TimeElapsed * 34300) / 2
+        NowDistance = (TimeElapsed * 34300) / 2
+
+        for n in range(100):
+            relevations += [NowDistance]
+
+        dataExtracted = np.array(relevations[20:80])
+        meanDistance = sum(dataExtracted)/len(dataExtracted)
+
+        relevations = []
+        dataExtracted = []
 
         #print("Distance: %.1f cm -> %.6f" % (distance, TimeElapsed))
-        led_allert(distance)
+        led_allert(meanDistance)
 
 
         # Right 0 -> 180
@@ -116,7 +129,7 @@ try:
             if angle <= minRange:
                 status=0
 
-        Message = str(round(distance,2))+"@"+str(angle)
+        Message = str(round(meanDistance,2))+"@"+str(angle)
         
         clientSock.sendto(Message.encode("ascii"), (UDP_IP_ADDRESS, UDP_PORT_NO))
         time.sleep(timeSleep)
