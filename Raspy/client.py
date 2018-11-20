@@ -5,7 +5,7 @@ from config import serverName, serverPort
 import socket
 import sys
 
-ITERATION = 40
+ITERATION = 20
 MIN = ITERATION * 20 / 100
 MAX = ITERATION - MIN
 
@@ -26,7 +26,7 @@ clientSocket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
 p = GPIO.PWM(SERVO, 50)
 # dc = Length / Period
-dc = 7
+dc = 2.5
 p.start(dc)
 
 
@@ -69,8 +69,7 @@ def measure_average():
 
 
 def config_servo(angle):
-    angle = 180 - angle
-    dc = 1.0 / 18.0 * angle + 2
+    dc = angle *2/45.0 + 2.5
     p.ChangeDutyCycle(dc)
 
 
@@ -79,8 +78,8 @@ def send_message(message, angle):
     message = message.encode('utf-8')
     clientSocket.sendto(message, (serverName, serverPort))
 
-
-# first_dictionary_180 = {}
+first_index = []
+second_index= []
 try:
     print("LED ON")
     GPIO.output(LASER, GPIO.HIGH)
@@ -88,10 +87,19 @@ try:
     for angle in range(0, 180):
         config_servo(angle)
         dist = measure_average()
-        # first_dictionary_180[angle] = dist
+        first_index.append(dist)
         send_message(dist, angle)
         print(angle)
         time.sleep(0.5)
+    
+    for angle in range(180,0,-1):
+        config_servo(angle)
+        dist = measure_average()
+        second_index.append(dist)
+        send_message(dist, angle)
+        print(angle)
+        time.sleep(0.5)
+
 
     print("Finish")
 
@@ -100,6 +108,9 @@ except KeyboardInterrupt:
 
 finally:
     GPIO.output(LASER, GPIO.LOW)
+    p.ChangeDutyCycle(2.5)
+    time.sleep(1)
+    p.stop()
     clientSocket.close()
     GPIO.cleanup()
 
