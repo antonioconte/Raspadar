@@ -1,0 +1,126 @@
+import time
+import RPi.GPIO as GPIO
+from config import serverName, serverPort
+import socket
+import sys
+
+ITERATION = 20
+MIN = ITERATION * 20 / 100
+MAX = ITERATION - MIN
+
+GPIO.setmode(GPIO.BCM)
+GPIO.setwarnings(False)
+TRIG = 19   # ARANCIO
+ECHO = 26   # GIALLO
+SERVO = 4
+LASER = 17
+
+GPIO.setup(SERVO, GPIO.OUT)
+GPIO.setup(LASER, GPIO.OUT)
+
+GPIO.setup(TRIG, GPIO.OUT)
+GPIO.setup(ECHO, GPIO.IN)
+
+clientSocket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+
+p = GPIO.PWM(SERVO, 50)
+# dc = Length / Period
+dc = 2.5
+p.start(dc)
+
+
+def computation_distance(pulse_duration):
+    # Multiply pulse duration by 17150 to get distance
+    distance = pulse_duration * 17150
+    distance = round(distance, 2)  # Round to two decimal points
+    return distance
+
+
+def measure():
+    GPIO.output(TRIG, False)
+    GPIO.output(TRIG, True)  # Set TRIG as HIGH
+    time.sleep(0.00001)  # Delay of 0.00001 seconds
+    GPIO.output(TRIG, False)  # Set TRIG as LOW
+
+    pulse_start = time.time()
+    while GPIO.input(ECHO) == 0:  # Check whether the ECHO is LOW
+        pulse_start = time.time()  # Saves the last known time of LOW pulse
+
+    pulse_end = time.time()
+    while GPIO.input(ECHO) == 1:  # Check whether the ECHO is HIGH
+        pulse_end = time.time()  # Saves the last known time of HIGH pulse
+
+    pulse_duration = pulse_end - pulse_start  # Get pulse duration to a variable
+    return computation_distance(pulse_duration)
+
+
+def measure_average():
+    stack = []
+    for i in range(ITERATION):
+        dist = measure()
+        stack.append(float(dist))
+
+    stack.sort()
+    nuovo_stack = stack[int(MIN):int(MAX)]
+    avg = sum(nuovo_stack) / len(nuovo_stack)
+    avg = round(avg, 2)
+    return avg
+
+
+def config_servo(angle):
+    dc = angle * 2 / 45.0 + 2.5
+    p.ChangeDutyCycle(dc)
+
+
+def send_message(message, angle):
+    message = str(message)+"@"+str(angle)
+    message = message.encode('utf-8')
+    clientSocket.sendto(message, (serverName, serverPort))
+
+
+def find_element(array1, array2):
+    print("Array1: ", len(array1), " - Array2: ", len(array2))
+    for i in range(180):
+        x = array1[i]
+        y = array2[180-i]
+        z = abs(x-y)
+        if(z < 1.0):
+            print("Same Value at angle : ", i)
+        else:
+            print("Diff Value at angle: ", i)
+
+
+first_index = []
+second_index = []
+
+try:
+    for angle in range(0, 180):
+        config_servo(angle)
+        dist = measure_average()
+        first_index.append(dist)
+        send_message(dist, angle)
+        print(angle, " - ", dist)
+        time.sleep(0.1)
+
+    for angle in range(180, 0, -1):
+        config_servo(angle)
+        dist = measure_average()
+        second_index.append(dist)
+        send_message(dist, angle)
+        print(angle, " - ", dist)
+        time.sleep(0.1)
+
+    find_element(first_index, second_index)
+
+except KeyboardInterrupt:
+    print("Stop")
+
+finally:
+    GPIO.output(LASER, GPIO.LOW)
+    p.ChangeDutyCycle(2.5)
+    time.sleep(1)
+    p.stop()
+    clientSocket.close()
+    GPIO.cleanup()
+
+sys.exit()

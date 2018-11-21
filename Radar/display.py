@@ -6,23 +6,44 @@ import time
 distMax = 50
 # This module draws the radar screen
 
+pygame.font.init() 
+labelFont = pygame.font.SysFont('Comic Sans MS', 15)
+titleFont = pygame.font.SysFont('Agency FB', 55)
+
 def draw(radarDisplay, targets, angle, distance, fontRenderer):
      # draw initial screen
     radarDisplay.fill(colors.black)
     
-    pygame.draw.circle(radarDisplay, colors.green, (500,590), 450, 1)
+    pygame.draw.circle(radarDisplay, colors.green, (500,590), 450, 1)#50
+    text = labelFont.render("50 cm", 1, colors.gray)
+    radarDisplay.blit(text,(481,120))
 
-    pygame.draw.circle(radarDisplay, colors.green, (500,590), 400, 1)
 
-    pygame.draw.circle(radarDisplay, colors.green, (500,590), 350, 1)
+    pygame.draw.circle(radarDisplay, colors.darkgreen, (500,590), 405, 1)
 
-    pygame.draw.circle(radarDisplay, colors.green, (500,590), 300, 1)
+    pygame.draw.circle(radarDisplay, colors.green, (500,590), 360, 1)#40
+    text = labelFont.render("40 cm", 1, colors.gray)
+    radarDisplay.blit(text,(481,210))
 
-    pygame.draw.circle(radarDisplay, colors.green, (500,590), 250, 1)
+    pygame.draw.circle(radarDisplay, colors.darkgreen, (500,590), 315, 1)
 
-    pygame.draw.circle(radarDisplay, colors.green, (500,590), 200, 1)
+    pygame.draw.circle(radarDisplay, colors.green, (500,590), 270, 1)#30
+    text = labelFont.render("30 cm", 1, colors.gray)
+    radarDisplay.blit(text,(481,300))
 
-    pygame.draw.circle(radarDisplay, colors.green, (500,590), 150, 1)
+    pygame.draw.circle(radarDisplay, colors.darkgreen, (500,590), 225, 1)
+
+    pygame.draw.circle(radarDisplay, colors.green, (500,590), 180, 1)#20
+    text = labelFont.render("20 cm", 1, colors.gray)
+    radarDisplay.blit(text,(481,390))
+
+    pygame.draw.circle(radarDisplay, colors.darkgreen, (500,590), 135, 1)
+
+    pygame.draw.circle(radarDisplay, colors.green, (500,590), 90, 1)#10
+    text = labelFont.render("10 cm", 1, colors.gray)
+    radarDisplay.blit(text,(481,480))
+
+    pygame.draw.circle(radarDisplay, colors.darkgreen, (500,590), 45, 1)
 
 
     radarDisplay.fill(colors.white, [0, 600, 1000, 20])
@@ -43,23 +64,23 @@ def draw(radarDisplay, targets, angle, distance, fontRenderer):
     pygame.draw.rect(radarDisplay, colors.blue, [20, 20, 270, 100], 2)
 
     # write the 0 degree
-    text = fontRenderer.render("0", 1, colors.green)
+    text = fontRenderer.render("0", 1, colors.forestgreen)
     radarDisplay.blit(text,(20,560))
 
     # write the 45 degree
-    text = fontRenderer.render("45", 1, colors.green)
+    text = fontRenderer.render("45", 1, colors.forestgreen)
     radarDisplay.blit(text,(135,230))
 
     # write the 90 degree
-    text = fontRenderer.render("90", 1, colors.green)
+    text = fontRenderer.render("90", 1, colors.forestgreen)
     radarDisplay.blit(text,(490,60))
 
     # write the 135 degree
-    text = fontRenderer.render("135", 1, colors.green)
+    text = fontRenderer.render("135", 1, colors.forestgreen)
     radarDisplay.blit(text,(845, 230))
 
     # write the 180 degree
-    text = fontRenderer.render("180", 1, colors.green)
+    text = fontRenderer.render("180", 1, colors.forestgreen)
     radarDisplay.blit(text,(960,560))
 
     # draw the moving line
@@ -84,7 +105,7 @@ def draw(radarDisplay, targets, angle, distance, fontRenderer):
 
     # write the distance
     
-    title = fontRenderer.render("Ultrasonic Radar" , 1, colors.white)
+    title = titleFont.render("Raspadar", 1, colors.white)
 
     radarDisplay.blit(title,(700,60))
 
