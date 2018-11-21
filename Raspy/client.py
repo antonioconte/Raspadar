@@ -1,6 +1,5 @@
 import time
 import RPi.GPIO as GPIO
-import numpy as np
 from config import serverName, serverPort
 import socket
 import sys
@@ -40,7 +39,7 @@ def computation_distance(pulse_duration):
 def measure():
     GPIO.output(TRIG, False)
     GPIO.output(TRIG, True)  # Set TRIG as HIGH
-    time.sleep(0.0001)  # Delay of 0.0001 seconds
+    time.sleep(0.00001)  # Delay of 0.00001 seconds
     GPIO.output(TRIG, False)  # Set TRIG as LOW
 
     pulse_start = time.time()
@@ -63,13 +62,13 @@ def measure_average():
 
     stack.sort()
     nuovo_stack = stack[int(MIN):int(MAX)]
-    avg = np.mean(nuovo_stack)
+    avg = sum(nuovo_stack) / len(nuovo_stack)
     avg = round(avg, 2)
     return avg
 
 
 def config_servo(angle):
-    dc = angle *2/45.0 + 2.5
+    dc = angle * 2 / 45.0 + 2.5
     p.ChangeDutyCycle(dc)
 
 
@@ -78,30 +77,40 @@ def send_message(message, angle):
     message = message.encode('utf-8')
     clientSocket.sendto(message, (serverName, serverPort))
 
-first_index = []
-second_index= []
-try:
-    print("LED ON")
-    GPIO.output(LASER, GPIO.HIGH)
 
+def find_element(array1, array2):
+    print("Array1: ", len(array1), " - Array2: ", len(array2))
+    for i in range(180):
+        x = array1[i]
+        y = array2[180-i]
+        z = abs(x-y)
+        if(z < 1.0):
+            print("Same Value at angle : ", i)
+        else:
+            print("Diff Value at angle: ", i)
+
+
+first_index = []
+second_index = []
+
+try:
     for angle in range(0, 180):
         config_servo(angle)
         dist = measure_average()
         first_index.append(dist)
         send_message(dist, angle)
-        print(angle)
-        time.sleep(0.5)
-    
-    for angle in range(180,0,-1):
+        print(angle, " - ", dist)
+        time.sleep(0.1)
+
+    for angle in range(180, 0, -1):
         config_servo(angle)
         dist = measure_average()
         second_index.append(dist)
         send_message(dist, angle)
-        print(angle)
-        time.sleep(0.5)
+        print(angle, " - ", dist)
+        time.sleep(0.1)
 
-
-    print("Finish")
+    find_element(first_index, second_index)
 
 except KeyboardInterrupt:
     print("Stop")
