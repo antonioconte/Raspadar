@@ -26,7 +26,7 @@ fontRenderer = pygame.font.Font(defaultFont, 20)
 
 radarDisplay = pygame.display.set_mode((1000, 600), pygame.RESIZABLE)
 
-pygame.display.set_caption('Ultrasonic Radar')
+pygame.display.set_caption('Raspadar')
 
 maxRange = 180
 minRange = 0
@@ -34,7 +34,6 @@ minRange = 0
 angle = 0.0
 status = 0
 
-timeSleep= 0.04
 
 # targets list
 targets = {}
