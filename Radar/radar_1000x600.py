@@ -51,8 +51,10 @@ try:
         distance = float (dist)
         angle = float(ang)
 
+        if distance == -1 and angle == -1:
+            targets.clear()
         # change the condition if the range is changed
-        if distance != -1 and distance <= 50:
+        elif distance != -1 and distance <= 50:
             targets[angle] = Target(angle, distance)
 
         draw(radarDisplay, targets, angle, distance, fontRenderer)

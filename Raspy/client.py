@@ -1,5 +1,5 @@
 import RPi.GPIO as GPIO
-# from gpiozero import LED
+from gpiozero import LED
 from config import serverName, serverPort
 import socket
 import time
@@ -18,7 +18,7 @@ GPIO.setwarnings(False)
 TRIG = 19   # ARANCIO
 ECHO = 26   # GIALLO
 SERVO = 4
-LASER = 17
+LASER = 13
 
 blue = LED(22)
 
@@ -32,7 +32,9 @@ clientSocket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 p = GPIO.PWM(SERVO, 50)
 dc = 2.5
 p.start(dc)
+sleep= 0.05
 
+time.sleep(2)
 staticElement = {}
 
 
@@ -110,10 +112,11 @@ def sendAngleLaser(dict):
 
     send_message(str(distance),str(angleLaser))
     # Move Servo
-    p.ChangeDutyCycle(angleLaser)
+    config_servo(angleLaser)
+    time.sleep(1)
     # Laser ON
     GPIO.output(LASER, GPIO.HIGH) 
-    time.sleep(3.0)
+    time.sleep(4)
     GPIO.output(LASER, GPIO.LOW)
 
 
@@ -122,22 +125,20 @@ try:
         # LED ON
         blue.on()
         config_servo(angle)
-        dist = measure_average()
         dist = measure()
         first_index.append(dist)
         send_message(dist, angle)
-        print(angle, " - ", dist)
-        time.sleep(0.05)
-
-    for angle in range(CYCLE-1, -1, -1):
+        #print(angle, " - ", dist)
+        time.sleep(sleep)
+    for angle in range (CYCLE-1, -1, -1):
         config_servo(angle)
-        dist = measure_average()
         dist = measure()
         second_index.append(dist)
         send_message(dist, angle)
-        print(angle, " - ", dist)
-        time.sleep(0.05)
-
+        #print(angle, " - ", dist)
+        time.sleep(sleep)
+    #reset radar targets
+    send_message(-1,-1)
     # LED OFF
     blue.off()
     find_element(first_index, second_index)
@@ -148,11 +149,10 @@ except KeyboardInterrupt:
     print("Stop")
 
 finally:
-    # GPIO.output(LASER, GPIO.LOW)
     p.ChangeDutyCycle(2.5)
     time.sleep(1)
     p.stop()
-    clientSocket.close()
+    #clientSocket.close()
     GPIO.cleanup()
 
 sys.exit()
