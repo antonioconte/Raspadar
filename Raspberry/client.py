@@ -30,11 +30,11 @@ GPIO.setup(ECHO, GPIO.IN)
 
 clientSocket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 p = GPIO.PWM(SERVO, 50)
-dc = 2.5
+dc = 10.5
 p.start(dc)
-sleep= 0.05
+angleSleep= 0.05
 
-time.sleep(2)
+time.sleep(3)
 staticElement = {}
 
 
@@ -108,11 +108,10 @@ def sendAngleLaser(dict):
         return
 
     angleLaser, distance = min(dict.items(), key=lambda x: x[1])
-    #print("VALORE MINIMO ----> Angolo:", angleLaser, "Distanza: ", distance)
 
-    send_message(str(distance),str(angleLaser))
+    send_message(str(distance),str(180-angleLaser))
     # Move Servo
-    config_servo(angleLaser)
+    config_servo(180-angleLaser)
     time.sleep(1)
     # Laser ON
     GPIO.output(LASER, GPIO.HIGH) 
@@ -121,22 +120,22 @@ def sendAngleLaser(dict):
 
 
 try:
-    for angle in range(0, CYCLE):
+    for angle in range (CYCLE-1, -1, -1):
         # LED ON
         blue.on()
         config_servo(angle)
         dist = measure()
         first_index.append(dist)
         send_message(dist, angle)
-        #print(angle, " - ", dist)
-        time.sleep(sleep)
-    for angle in range (CYCLE-1, -1, -1):
+        time.sleep(angleSleep)
+
+    for angle in range (0, CYCLE):
         config_servo(angle)
         dist = measure()
         second_index.append(dist)
         send_message(dist, angle)
-        #print(angle, " - ", dist)
-        time.sleep(sleep)
+        time.sleep(angleSleep)
+
     #reset radar targets
     send_message(-1,-1)
     # LED OFF
@@ -144,15 +143,13 @@ try:
     find_element(first_index, second_index)
     sendAngleLaser(staticElement)
 
-
 except KeyboardInterrupt:
     print("Stop")
 
 finally:
-    p.ChangeDutyCycle(2.5)
+    p.ChangeDutyCycle(10.5)
     time.sleep(1)
     p.stop()
-    #clientSocket.close()
+    clientSocket.close()
     GPIO.cleanup()
 
-sys.exit()

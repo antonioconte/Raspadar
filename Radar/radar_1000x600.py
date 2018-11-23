@@ -46,12 +46,12 @@ try:
         
 
         Message = str(data.decode())
-        dist,ang = Message.split("@")
+        dist, ang = Message.split("@")
 
         distance = float (dist)
-        angle = float(ang)
-
-        if distance == -1 and angle == -1:
+        oppositeAngle = float(ang)
+        angle = 180-oppositeAngle
+        if distance == -1 and oppositeAngle == -1:
             targets.clear()
         # change the condition if the range is changed
         elif distance != -1 and distance <= 50:
