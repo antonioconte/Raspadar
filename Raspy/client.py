@@ -20,18 +20,18 @@ ECHO = 26   # GIALLO
 SERVO = 4
 LASER = 17
 
-#blue = LED(22)
+blue = LED(22)
 
-# GPIO.setup(SERVO, GPIO.OUT)
-# GPIO.setup(LASER, GPIO.OUT)
+GPIO.setup(SERVO, GPIO.OUT)
+GPIO.setup(LASER, GPIO.OUT)
 
 GPIO.setup(TRIG, GPIO.OUT)
 GPIO.setup(ECHO, GPIO.IN)
 
 clientSocket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-# p = GPIO.PWM(SERVO, 50)
-# dc = 2.5
-# p.start(dc)
+p = GPIO.PWM(SERVO, 50)
+dc = 2.5
+p.start(dc)
 
 staticElement = {}
 
@@ -93,7 +93,7 @@ def find_element(array1, array2):
             # Add element
             staticElement[i] = firstArrayElement
             #send_message(msg, i)
-    print(len(staticElement))
+    #print(len(staticElement))
 
 
 first_index = []
@@ -106,36 +106,40 @@ def sendAngleLaser(dict):
         return
 
     angleLaser, distance = min(dict.items(), key=lambda x: x[1])
-    print("VALORE MINIMO ----> Angolo:", angleLaser, "Distanza: ", distance)
+    #print("VALORE MINIMO ----> Angolo:", angleLaser, "Distanza: ", distance)
 
-    # send_message(str(distance),str(angleLaser))
+    send_message(str(distance),str(angleLaser))
     # Move Servo
-    # p.ChangeDutyCycle(angleLaser)
+    p.ChangeDutyCycle(angleLaser)
+    # Laser ON
+    GPIO.output(LASER, GPIO.HIGH) 
+    time.sleep(3.0)
+    GPIO.output(LASER, GPIO.LOW)
 
 
 try:
     for angle in range(0, CYCLE):
         # LED ON
-        # blue.on()
-        # config_servo(angle)
+        blue.on()
+        config_servo(angle)
         dist = measure_average()
-        # dist = measure()
+        dist = measure()
         first_index.append(dist)
         send_message(dist, angle)
         print(angle, " - ", dist)
         time.sleep(0.05)
 
     for angle in range(CYCLE-1, -1, -1):
-        # config_servo(angle)
+        config_servo(angle)
         dist = measure_average()
-        # dist = measure()
+        dist = measure()
         second_index.append(dist)
         send_message(dist, angle)
         print(angle, " - ", dist)
         time.sleep(0.05)
 
     # LED OFF
-    # blue.off()
+    blue.off()
     find_element(first_index, second_index)
     sendAngleLaser(staticElement)
 
@@ -145,9 +149,9 @@ except KeyboardInterrupt:
 
 finally:
     # GPIO.output(LASER, GPIO.LOW)
-    # p.ChangeDutyCycle(2.5)
+    p.ChangeDutyCycle(2.5)
     time.sleep(1)
-    # p.stop()
+    p.stop()
     clientSocket.close()
     GPIO.cleanup()
 
