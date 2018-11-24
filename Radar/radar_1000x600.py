@@ -6,7 +6,7 @@ import sys
 from target import *
 from display import draw
 import socket
-from random import *
+#import os
 
 ###### Socket setting
 UDP_IP_ADDRESS = ""
@@ -16,7 +16,7 @@ serverSock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 serverSock.bind((UDP_IP_ADDRESS, UDP_PORT_NO))
 
 # initialize the program
-os.environ['SDL_VIDEO_CENTERED'] = '1'
+#os.environ['SDL_VIDEO_CENTERED'] = '1'
 x = pygame.init()
 
 pygame.font.init()
