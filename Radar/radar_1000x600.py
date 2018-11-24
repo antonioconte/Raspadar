@@ -16,6 +16,7 @@ serverSock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 serverSock.bind((UDP_IP_ADDRESS, UDP_PORT_NO))
 
 # initialize the program
+os.environ['SDL_VIDEO_CENTERED'] = '1'
 x = pygame.init()
 
 pygame.font.init()
