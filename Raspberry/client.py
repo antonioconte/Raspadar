@@ -7,7 +7,7 @@ import numpy as np
 import sys
 import os
 
-ITERATION = 10
+ITERATION = 20
 MIN = ITERATION * 20 / 100
 MAX = ITERATION - MIN
 CYCLE = 181
@@ -15,28 +15,31 @@ TOLLERATION = 2.0
 
 GPIO.setmode(GPIO.BCM)
 GPIO.setwarnings(False)
-TRIG = 19   # ARANCIO
-ECHO = 26   # GIALLO
+
+# PIN
+TRIG = 19
+ECHO = 26
 SERVO = 4
 LASER = 13
-
 blue = LED(22)
-
-GPIO.setup(SERVO, GPIO.OUT)
-GPIO.setup(LASER, GPIO.OUT)
 
 GPIO.setup(TRIG, GPIO.OUT)
 GPIO.setup(ECHO, GPIO.IN)
+GPIO.setup(SERVO, GPIO.OUT)
+GPIO.setup(LASER, GPIO.OUT)
+
+p = GPIO.PWM(SERVO, 50)
+# Move servo to initial position
+dc = 10.5 
+p.start(dc)
+
+angleSleep = 0.05
 
 clientSocket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-p = GPIO.PWM(SERVO, 50)
-dc = 10.5
-p.start(dc)
-angleSleep= 0.05
-
 time.sleep(3)
-staticElement = {}
 
+# StaticElement dictionar between first and second relevations 
+staticElement = {}
 
 def measure():
     GPIO.output(TRIG, False)
@@ -56,7 +59,7 @@ def measure():
 
     distance = pulse_duration * 17150
     distance = round(distance, 2)  # Round to two decimal points
-    if distance > 50:
+    if distance > 50: #Out of Range
         distance = 51
     return distance
 
@@ -72,36 +75,35 @@ def measure_average():
     avg = round(avg, 2)
     return avg
 
-
+# Convert angle into DutyCycle and move servo
 def config_servo(angle):
     dc = angle * 2 / 45.0 + 2.5
     p.ChangeDutyCycle(dc)
 
-
-def send_message(message, angle):
-    message = str(message)+"@"+str(angle)
+# Send distance, angle to radar
+def send_message(distance, angle):
+    message = str(distance)+"@"+str(angle)
     message = message.encode('utf-8')
     clientSocket.sendto(message, (serverName, serverPort))
 
-
+# Find similar value between first and second relevation
 def find_element(array1, array2):
     for i in range(CYCLE):
         firstArrayElement = array1[i]
         secondArrayElement = array2[CYCLE-i-1]
         difference = abs(firstArrayElement-secondArrayElement)
         if(firstArrayElement != 51 and difference < TOLLERATION):
-            msg = str("Same Value: " + str(firstArrayElement) +
-                      " - " + str(secondArrayElement))
+
             # Add element
             staticElement[i] = firstArrayElement
-            #send_message(msg, i)
-    #print(len(staticElement))
 
-
+# First and Second revelations array
 first_index = []
 second_index = []
 
-
+# Take angle and distance of min value of dictionar
+# Send values to radar
+# Move servo and Start Laser  
 def sendAngleLaser(dict):
     if len(dict) == 0:
         print("Nessun Valore Minimo")
@@ -109,18 +111,20 @@ def sendAngleLaser(dict):
 
     angleLaser, distance = min(dict.items(), key=lambda x: x[1])
 
-    send_message(str(distance),str(180-angleLaser))
+    send_message(str(distance),str(CYCLE-angleLaser))
     # Move Servo
-    config_servo(180-angleLaser)
+    config_servo(CYCLE-angleLaser)
     time.sleep(1)
     # Laser ON
     GPIO.output(LASER, GPIO.HIGH) 
     time.sleep(4)
+    # Laser OFF
     GPIO.output(LASER, GPIO.LOW)
 
 
 try:
-    for angle in range (CYCLE-1, -1, -1):
+    # Sx to Dx
+    for angle in range(CYCLE-1, -1, -1):
         # LED ON
         blue.on()
         config_servo(angle)
@@ -129,6 +133,9 @@ try:
         send_message(dist, angle)
         time.sleep(angleSleep)
 
+    time.sleep(1)
+    
+    # Dx to Sx
     for angle in range (0, CYCLE):
         config_servo(angle)
         dist = measure()
@@ -136,8 +143,8 @@ try:
         send_message(dist, angle)
         time.sleep(angleSleep)
 
-    #reset radar targets
-    send_message(-1,-1)
+    # Reset radar targets
+    send_message(-1, -1)
     # LED OFF
     blue.off()
     find_element(first_index, second_index)
