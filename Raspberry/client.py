@@ -123,10 +123,11 @@ def sendAngleLaser(dict):
 
 
 try:
+    # LED ON
+    blue.on()
+
     # Sx to Dx
     for angle in range(CYCLE-1, -1, -1):
-        # LED ON
-        blue.on()
         config_servo(angle)
         dist = measure()
         first_index.append(dist)
