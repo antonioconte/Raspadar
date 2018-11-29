@@ -125,31 +125,6 @@ class Display:
             text_y = label_y[i] - (text.get_rect().height)/2
             self.radarDisplay.blit(text, (text_x, text_y))
 
-    def get_distance(self, distance):
-        x = int(self.MAX_RANGE_PX * distance / self.MAX_RANGE_CM)
-        return x
-
-    def draw_object(self, distance, angle, point):
-        # object
-        obj_x = math.cos(math.radians(angle)) * self.get_distance(distance)
-        obj_y = math.sin(math.radians(angle)) * self.get_distance(distance)
-        position = (self.CENTER_RADAR_X - int(obj_x),
-                    self.CENTER_RADAR_Y - int(obj_y))
-        if point == False:
-            pygame.draw.circle(self.radarDisplay, c.yellow,
-                               position, self.SIZE_FIRST)
-        else:
-            pygame.draw.circle(self.radarDisplay, c.orange,
-                               position, self.SIZE_FIRST)
-
-    def draw_line(self, angle):
-        # line_radar blue
-        radius = float(self.MAX_RANGE_PX)
-        r_x = math.cos(math.radians(angle))*radius
-        r_y = math.sin(math.radians(angle))*radius
-        pygame.draw.line(self.radarDisplay, c.blue, self.center_radar,
-                         (self.CENTER_RADAR_X-int(r_x), self.CENTER_RADAR_Y-int(r_y)), 3)
-
     def print_informations(self, distance, angle):
         # write angle
         message = "Angle : " + str(angle)
@@ -166,37 +141,63 @@ class Display:
         title = self.titleFont.render("Raspadar", 1, c.white)
         self.radarDisplay.blit(title, (1400, 60))
 
+    def get_distance(self, distance):
+        x = int(self.MAX_RANGE_PX * distance / self.MAX_RANGE_CM)
+        return x
+
+    def draw_line(self, angle):
+        # line_radar blue
+        radius = float(self.MAX_RANGE_PX)
+        r_x = math.cos(math.radians(angle)) * radius
+        r_y = math.sin(math.radians(angle)) * radius
+        pygame.draw.line(self.radarDisplay, c.blue, self.center_radar,
+                         (self.CENTER_RADAR_X-int(r_x), self.CENTER_RADAR_Y-int(r_y)), 3)
+
+    def set_position_element(self, distance, angle):
+        obj_x = math.cos(math.radians(angle)) * self.get_distance(distance)
+        obj_y = math.sin(math.radians(angle)) * self.get_distance(distance)
+        position = (self.CENTER_RADAR_X - int(obj_x),
+                    self.CENTER_RADAR_Y - int(obj_y))
+        return position
+
+    def draw_single_element(self, distance, angle, info):
+        # la testa sarebbe l'elemento rilevato in quell'istante
+        position = self.set_position_element(distance, angle)
+        if info == 0:
+            color = c.yellow
+        elif info == 1:
+            color = c.orange
+        pygame.draw.circle(self.radarDisplay, color, position, self.SIZE_FIRST)
+
     def drawing_target(self, targets):
         for angle in list(targets):
-            target_x = math.cos(math.radians(targets[angle].angle)) * self.get_distance(targets[angle].distance)
-            target_y = math.sin(math.radians(targets[angle].angle)) * self.get_distance(targets[angle].distance)
-            position = (self.CENTER_RADAR_X - int(target_x), self.CENTER_RADAR_Y - int(target_y))
-            pygame.draw.circle(self.radarDisplay, targets[angle].color, position, self.SIZE_OBJ)
+            position = position = self.set_position_element(
+                targets[angle].distance, targets[angle].angle)
+            pygame.draw.circle(self.radarDisplay,
+                               targets[angle].color, position, self.SIZE_OBJ)
 
-    def drawing(self, distance, angle, targets):
+    def drawing(self, distance, angle, targets, targets_precedente, iterazione):
         self.draw_diagram()
-        if distance != -1 or distance != -2:
+        if distance > 0:
             self.print_informations(distance, angle)
-        self.drawing_target(targets)
-        if (distance >= 2.0) and (distance <= 51.0):
-            self.draw_object(distance, angle, False)
+
+        if iterazione == 1:
+            self.drawing_target(targets)
+        if iterazione == 2:
+            self.drawing_target(targets_precedente)
+            self.drawing_target(targets)
+        if iterazione == 3:
+            self.draw_single_element(distance, angle, 1)
+
+        if (distance >= 2.0) and (distance <= 51.0) and iterazione != 3:
+            self.draw_single_element(distance, angle, 0)
+
         self.draw_line(angle)
         pygame.display.update()
 
-    def drawing2(self, distance, angle, targets, targets2):
-        self.draw_diagram()
-        if distance != -1 or distance != -2:
-            self.print_informations(distance, angle)
-        self.drawing_target(targets2)
-        self.drawing_target(targets)
-        if (distance >= 2.0) and (distance <= 51.0):
-            self.draw_object(distance, angle, False)
-        self.draw_line(angle)
-        pygame.display.update()
-
-    def stop(self):
+    def stop_radar(self):
         print("STOP")
-        time.sleep(5)
+        time.sleep(2)
         pygame.quit()
 
 
@@ -207,33 +208,33 @@ serverSocket.bind(('', serverPort))
 print("Server is ready.")
 display = Display()
 
-targets = {}
-targets2 = {}
-passata = 1
+targets = dict()
+previous_targets = dict()
+iterazione = 1
 
 
-def draw_point(distance, angle, passata):
-    if (distance == -2) and (angle == -2):
+def draw_point(distance, angle):
+    global targets
+    global previous_targets
+    global iterazione
+
+    if distance == -2:
         # cmabio il colore a Target
         for angle in list(targets):
             targets[angle].color = colors.red6L
         display.drawing_target(targets)
-        targets2 = targets
-        passata = 2
-        return
-    elif (distance == -1) and (angle == -1):
-        # pulisco Target
+        previous_targets = targets
+        iterazione = 2
+        return None
+    elif distance == -1:
+        # pulisco Targets
         targets.clear()
-        passata = 0
-    elif (distance != -1) and (distance <= 50):
+        previous_targets.clear()
+        iterazione = 3
+    elif (distance > -1) and (distance <= 50):
         targets[angle] = Target(angle, distance)
 
-    if passata == 1:
-        display.drawing(distance, angle, targets)
-    elif passata == 2:
-        display.drawing2(distance, angle, targets, targets2)
-    elif passata == 0:
-        display.draw_object(distance, angle, True)
+    display.drawing(distance, angle, targets, previous_targets, iterazione)
 
 
 try:
@@ -243,7 +244,7 @@ try:
         distance, angle = message.split('@')
         distance = float(distance)
         angle = float(angle)
-        draw_point(distance, angle, passata)
+        draw_point(distance, angle)
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -251,4 +252,4 @@ try:
 except (KeyboardInterrupt, Exception) as e:
     print(repr(e))
 finally:
-    display.stop()
+    display.stop_radar()
