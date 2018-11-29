@@ -115,7 +115,7 @@ def sendAngleLaser(dict):
 
     angleLaser, distance = min(dict.items(), key=lambda x: x[1])
 
-    send_message(str(distance),str(CYCLE-angleLaser))
+    send_message(str(distance), str(CYCLE-angleLaser))
     # Move Servo
     config_servo(CYCLE-angleLaser)
     time.sleep(1)
@@ -137,8 +137,6 @@ try:
 
         # Sx to Dx
         for angle in range(CYCLE-1, -1, -1):
-            # LED ON
-            blue.on()
             config_servo(angle)
             dist = measure()
             first_index.append(dist)
