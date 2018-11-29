@@ -38,11 +38,11 @@ class Display:
         text = self.subtitleFont.render(
             "Waiting data from client ...", 1, c.gray)
         text_x = self.WIDGHT/2 - text.get_rect().width/2
-        text_y = self.HEIGHT/2 - text.get_rect().height/2
+        text_y = self.HEIGHT/2 - text.get_rect().height/2 + 100
         self.radarDisplay.blit(text, (text_x, text_y))
         text = self.titleFont.render("Welcome to Raspadar!", 1, c.gray)
         text_x = self.WIDGHT/2 - text.get_rect().width/2
-        text_y = text_y/2 - text.get_rect().height/2
+        text_y = text_y/2 - text.get_rect().height/2+ 100
         self.radarDisplay.blit(text, (text_x, text_y))
         pygame.display.update()
 
