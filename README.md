@@ -11,6 +11,7 @@ foo@bar: ~ $ python client.py
 ## Radar
 
 Visualizzazione grafica su radar del funzionamento del sistema
+
 Risoluzioni:
   - 1800x900
   - 1000x600
