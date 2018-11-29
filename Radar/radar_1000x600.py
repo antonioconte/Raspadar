@@ -1,88 +1,276 @@
+from target import *
+import sys
+from socket import *
 import pygame
 import math
+import colors as c
 import time
-import colors
-import sys
-from target import *
-from display import draw
-import socket
-#import os
-
-###### Socket setting
-UDP_IP_ADDRESS = ""
-UDP_PORT_NO = 12000
-
-serverSock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-serverSock.bind((UDP_IP_ADDRESS, UDP_PORT_NO))
-
-# initialize the program
-#os.environ['SDL_VIDEO_CENTERED'] = '1'
-x = pygame.init()
-
-pygame.font.init()
-
-defaultFont = pygame.font.get_default_font()
-
-fontRenderer = pygame.font.Font(defaultFont, 20)
-titleFont = pygame.font.SysFont('Agency FB', 60)
-
-radarDisplay = pygame.display.set_mode((1000, 600), pygame.RESIZABLE)
+import os
 
 
-pygame.display.set_caption('Raspadar')
+class Display:
+    WIDGHT = 1000
+    HEIGHT = 620
+    CENTER_RADAR_X = 500
+    CENTER_RADAR_Y = 600
+    DIS_MAX = 51
+    SIZE_OBJ = 5
+    SIZE_FIRST = 10
 
-maxRange = 180
-minRange = 0
+    # initializes Pygame
+    os.environ['SDL_VIDEO_CENTERED'] = '1'
+    pygame.init()
+    radarDisplay = pygame.display.set_mode((WIDGHT, HEIGHT))
+    center_radar = (CENTER_RADAR_X, CENTER_RADAR_Y)
+    defaultFont = pygame.font.get_default_font()
+    fontRenderer = pygame.font.Font(defaultFont, 16)
+    bangFont = pygame.font.Font(defaultFont, 20)
+    labelFont = pygame.font.SysFont('Comic Sans MS', 16)
+    titleFont = pygame.font.SysFont('Agency FB', 60)
+    subtitleFont = pygame.font.SysFont('Agency FB', 30)
 
-angle = 0.0
-status = 0
+    MAX_RANGE_PX = 450
+    MAX_RANGE_CM = 50
+
+    def __init__(self):
+        self.radarDisplay.fill(c.black)
+        text = self.subtitleFont.render(
+            "Waiting data from client ...", 1, c.gray)
+        text_x = self.WIDGHT/2 - text.get_rect().width/2
+        text_y = self.HEIGHT/2 - text.get_rect().height/2
+        self.radarDisplay.blit(text, (text_x, text_y))
+        text = self.titleFont.render("Welcome to Raspadar!", 1, c.gray)
+        text_x = self.WIDGHT/2 - text.get_rect().width/2
+        text_y = text_y/2 - text.get_rect().height/2
+        self.radarDisplay.blit(text, (text_x, text_y))
+        pygame.display.update()
+
+    def draw_diagram(self):
+        self.radarDisplay.fill(c.black)
+        RANGE_50 = self.get_distance(50)
+        RANGE_45 = self.get_distance(45)
+        RANGE_40 = self.get_distance(40)
+        RANGE_35 = self.get_distance(35)
+        RANGE_30 = self.get_distance(30)
+        RANGE_25 = self.get_distance(25)
+        RANGE_20 = self.get_distance(20)
+        RANGE_15 = self.get_distance(15)
+        RANGE_10 = self.get_distance(10)
+        RANGE_5 = self.get_distance(5)
+        radius_circle = [RANGE_10, RANGE_20, RANGE_30, RANGE_40, RANGE_50]
+
+        pygame.draw.circle(self.radarDisplay, c.green,
+                           self.center_radar,  RANGE_50, 1)  # 50
+        pygame.draw.circle(self.radarDisplay, c.darkgreen,
+                           self.center_radar,  RANGE_45, 1)
+        pygame.draw.circle(self.radarDisplay, c.green,
+                           self.center_radar,  RANGE_40, 1)  # 40
+        pygame.draw.circle(self.radarDisplay, c.darkgreen,
+                           self.center_radar,  RANGE_35, 1)
+        pygame.draw.circle(self.radarDisplay, c.green,
+                           self.center_radar,  RANGE_30, 1)  # 30
+        pygame.draw.circle(self.radarDisplay, c.darkgreen,
+                           self.center_radar,  RANGE_25, 1)
+        pygame.draw.circle(self.radarDisplay, c.green,
+                           self.center_radar,  RANGE_20, 1)  # 20
+        pygame.draw.circle(self.radarDisplay, c.darkgreen,
+                           self.center_radar,  RANGE_15, 1)
+        pygame.draw.circle(self.radarDisplay, c.green,
+                           self.center_radar,  RANGE_10, 1)  # 10
+        pygame.draw.circle(self.radarDisplay, c.darkgreen,
+                           self.center_radar,  RANGE_5, 1)
+
+        # draw under radar
+        self.radarDisplay.fill(
+            c.black, [0, self.CENTER_RADAR_Y+1, self.WIDGHT, 19])
+
+        # horizental line
+        HL_start = 20
+        HL_end = self.WIDGHT - 20
+        CENTER = self.WIDGHT / 2
+        pygame.draw.line(self.radarDisplay, c.green, (HL_start, self.CENTER_RADAR_Y),
+                         (HL_end, self.CENTER_RADAR_Y), 2)
+
+        # x,y = raggio * cos(45))
+        # 45 degree line
+        # 45 degree line
+        X_45 = CENTER - 339
+        Y_45 = CENTER - 339
+       
+        # 135 degree line
+        X_135 = CENTER + 339
+        Y_135 = CENTER - 339
+        
+        # 45 degree line
+        pygame.draw.line(self.radarDisplay, colors.green, (500, 600),(154, 255), 1)
+        # 90 degree line
+        pygame.draw.line(self.radarDisplay, colors.green, (500, 600), (500, 80), 1)
+        # 135 degree line
+        pygame.draw.line(self.radarDisplay, colors.green, (500, 600), (845, 255), 1)
+        
+        # draw stastics board
+        pygame.draw.rect(self.radarDisplay, colors.blue, [20, 10, 270, 90], 2)
+
+        # write the 0 degree
+        text = self.fontRenderer.render("0", 1, colors.forestgreen)
+        self.radarDisplay.blit(text,(20,560))
+
+        # write the 45 degree
+        text = self.fontRenderer.render("45", 1, colors.forestgreen)
+        self.radarDisplay.blit(text,(135,230))
+
+        # write the 90 degree
+        text = self.fontRenderer.render("90", 1, colors.forestgreen)
+        self.radarDisplay.blit(text,(490,60))
+
+        # write the 135 degree
+        text = self.fontRenderer.render("135", 1, colors.forestgreen)
+        self.radarDisplay.blit(text,(845, 230))
+
+        # write the 180 degree
+        text = self.fontRenderer.render("180", 1, colors.forestgreen)
+        self.radarDisplay.blit(text,(960,560))
 
 
-# targets list
+        # write distance
+        labels = ["10 cm", "20 cm", "30 cm", "40 cm", "50 cm"]
+        for i in range(5):
+            text = self.labelFont.render(labels[i], 1, c.gray)
+            text_x = CENTER - (text.get_rect().width)/2
+            text_y = CENTER - radius_circle[i] + 80
+            self.radarDisplay.blit(text, (text_x, text_y))
+
+
+
+    def get_distance(self, distance):
+        x = int(self.MAX_RANGE_PX * distance / self.MAX_RANGE_CM)
+        return x
+
+    def draw_object(self, distance, angle, point):
+        # object
+        obj_x = math.cos(math.radians(angle)) * self.get_distance(distance)
+        obj_y = math.sin(math.radians(angle)) * self.get_distance(distance)
+        position = (self.CENTER_RADAR_X - int(obj_x),
+                    self.CENTER_RADAR_Y - int(obj_y))
+        if point == False:
+            pygame.draw.circle(self.radarDisplay, c.yellow,
+                               position, self.SIZE_FIRST)
+        else:
+            pygame.draw.circle(self.radarDisplay, c.orange,
+                               position, self.SIZE_FIRST)
+            text = self.bangFont.render("Bang", 1, c.red)
+            self.radarDisplay.blit(text, (40, 100))
+            #pygame.display.update()
+        
+
+    def draw_line(self, angle):
+        # line_radar blue
+        radius = float(self.MAX_RANGE_PX)
+        r_x = math.cos(math.radians(angle))*radius
+        r_y = math.sin(math.radians(angle))*radius
+        pygame.draw.line(self.radarDisplay, c.blue, self.center_radar,
+                         (self.CENTER_RADAR_X-int(r_x), self.CENTER_RADAR_Y-int(r_y)), 3)
+
+    def print_informations(self, distance, angle):
+        # write angle
+        message = "Angle : " + str(angle)
+        text = self.fontRenderer.render(message, 1, c.white)
+        self.radarDisplay.blit(text, (40, 30))
+        # write distance
+        if distance >= self.DIS_MAX:
+            message = "Distance : Out of Range"
+        else:
+            message = "Distance : " + str(distance) + " cm"
+        text = self.fontRenderer.render(message, 1, c.white)
+        self.radarDisplay.blit(text, (40, 60))
+        # write title
+        title = self.titleFont.render("Raspadar", 1, c.white)
+        self.radarDisplay.blit(title, (700, 60))
+
+    def drawing_target(self, targets):
+        for angle in list(targets):
+            target_x = math.cos(math.radians(targets[angle].angle)) * self.get_distance(targets[angle].distance)
+            target_y = math.sin(math.radians(targets[angle].angle)) * self.get_distance(targets[angle].distance)
+            position = (self.CENTER_RADAR_X - int(target_x), self.CENTER_RADAR_Y - int(target_y))
+            pygame.draw.circle(self.radarDisplay, targets[angle].color, position, self.SIZE_OBJ)
+
+    def drawing(self, distance, angle, targets):
+        self.draw_diagram()
+        if distance != -1 or distance != -2:
+            self.print_informations(distance, angle)
+        self.drawing_target(targets)
+        if (distance >= 2.0) and (distance <= 51.0):
+            self.draw_object(distance, angle, False)
+        self.draw_line(angle)
+        pygame.display.update()
+
+    def drawing2(self, distance, angle, targets, targets2):
+        self.draw_diagram()
+        if distance != -1 or distance != -2:
+            self.print_informations(distance, angle)
+        self.drawing_target(targets2)
+        self.drawing_target(targets)
+        if (distance >= 2.0) and (distance <= 51.0):
+            self.draw_object(distance, angle, False)
+        self.draw_line(angle)
+        pygame.display.update()
+
+    def stop(self):
+        print("STOP")
+        time.sleep(5)
+        pygame.quit()
+
+
+serverPort = 12000
+serverSocket = socket(AF_INET, SOCK_DGRAM)
+serverSocket.bind(('', serverPort))
+
+print("Server is ready.")
+display = Display()
+
 targets = {}
+targets2 = {}
 
-# Welcome Screen
-radarDisplay.fill(colors.black)
-text = titleFont.render("Welcome to Raspadar!", 1, colors.gray)
-text_x = 500 - text.get_rect().width/2
-text_y = 300 - text.get_rect().height/2
-radarDisplay.blit(text, (text_x, text_y))
-pygame.display.update()
+passata = 1
+
+def draw_point(distance, angle, passata):
+    if (distance == -2) and (angle == -2):
+        # cambio il colore a Target
+        for angle in list(targets):
+            targets[angle].color = colors.red6L
+        display.drawing_target(targets)
+        targets2 = targets
+        passata = 2
+        return
+    elif (distance == -1) and (angle == -1):
+        # pulisco Target
+        targets.clear()
+        passata = 0
+        
+    elif (distance != -1) and (distance <= 50):
+        targets[angle] = Target(angle, distance)
+
+    if passata == 1:
+        display.drawing(distance, angle, targets)
+    elif passata == 2:
+        display.drawing2(distance, angle, targets, targets2)
+    else :
+        display.draw_object(distance, angle, True)
+
 
 try:
-
-    
     while True:
+        message = serverSocket.recv(2048)
+        message = str(message.decode())
+        distance, angle = message.split('@')
+        distance = float(distance)
+        angle = float(angle)
+        draw_point(distance, angle, passata)
 
-        data, addr = serverSock.recvfrom(256)
-        
-
-        Message = str(data.decode())
-        dist, ang = Message.split("@")
-
-        distance = float (dist)
-        oppositeAngle = float(ang)
-        angle = 180-oppositeAngle
-        if distance == -1 and oppositeAngle == -1:
-            targets.clear()
-        # change the condition if the range is changed
-        elif distance != -1 and distance <= 50:
-            targets[angle] = Target(angle, distance)
-
-        draw(radarDisplay, targets, angle, distance, fontRenderer)
-        # detect if close is pressed to stop the program
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                #set servomotore a 0 gradi
-                raise KeyboardInterrupt
-        
-    
-except KeyboardInterrupt:
-    print('Radar Exit --> KeyboardInterrupt')
-
-except Exception as e:
-    print("Exception: ", e)
-    print('Radar Exit--> Exception')
-
-pygame.quit()
-sys.exit()
+                raise Exception('Quit')
+except (KeyboardInterrupt, Exception) as e:
+    print(repr(e))
+finally:
+    display.stop()

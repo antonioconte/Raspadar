@@ -1,4 +1,4 @@
-"This file defines the colors tuples"
+#This file defines the colors tuples
 
 # white
 white = (255, 255, 255)
@@ -21,11 +21,17 @@ red5L = (255, 128, 128)
 red6L = (255, 153, 153)
 
 # green
-green = (0,255,0)
+green = (0, 255, 0)
 # forest green
-forestgreen = (0,100,0)
+forestgreen = (0, 100, 0)
 # dark green
-darkgreen = (8,58,13)
+darkgreen = (8, 58, 13)
+
+# yellow
+yellow = (255, 255, 0)
+
+# orange
+orange = (255, 165, 0)
 
 # blue
 blue = (0, 0, 205)
