@@ -129,17 +129,19 @@ class Display:
         # write angle
         message = "Angle : " + str(angle)
         text = self.fontRenderer.render(message, 1, c.white)
-        self.radarDisplay.blit(text, (40, 20))
+        self.radarDisplay.blit(text, (40, 25))
         # write distance
         if distance >= self.DIS_MAX:
             message = "Distance : Out of Range"
         else:
             message = "Distance : " + str(distance) + " cm"
         text = self.fontRenderer.render(message, 1, c.white)
-        self.radarDisplay.blit(text, (40, 50))
+        self.radarDisplay.blit(text, (40, 60))
         # write title
         title = self.titleFont.render("Raspadar", 1, c.white)
-        self.radarDisplay.blit(title, (1400, 60))
+        self.radarDisplay.blit(title, (1300, 60))
+        # draw stastics board
+        pygame.draw.rect(self.radarDisplay, colors.blue, [20, 10, 225, 80], 2)
 
     def get_distance(self, distance):
         x = int(self.MAX_RANGE_PX * distance / self.MAX_RANGE_CM)
@@ -153,7 +155,7 @@ class Display:
         pygame.draw.line(self.radarDisplay, c.blue, self.center_radar,
                          (self.CENTER_RADAR_X-int(r_x), self.CENTER_RADAR_Y-int(r_y)), 3)
 
-    def set_position_element(self, distance, angle):
+    def get_position_element(self, distance, angle):
         obj_x = math.cos(math.radians(angle)) * self.get_distance(distance)
         obj_y = math.sin(math.radians(angle)) * self.get_distance(distance)
         position = (self.CENTER_RADAR_X - int(obj_x),
@@ -162,7 +164,7 @@ class Display:
 
     def draw_single_element(self, distance, angle, info):
         # la testa sarebbe l'elemento rilevato in quell'istante
-        position = self.set_position_element(distance, angle)
+        position = self.get_position_element(distance, angle)
         if info == 0:
             color = c.yellow
         elif info == 1:
@@ -170,11 +172,13 @@ class Display:
         pygame.draw.circle(self.radarDisplay, color, position, self.SIZE_FIRST)
 
     def drawing_target(self, targets):
+        print(targets.keys)
+        print(targets.values)
         for angle in list(targets):
-            position = position = self.set_position_element(
+            position = position = self.get_position_element(
                 targets[angle].distance, targets[angle].angle)
             pygame.draw.circle(self.radarDisplay,
-                               targets[angle].color, position, self.SIZE_OBJ)
+                               targets[angle].color, position, self.SIZE_OBJ)       
 
     def drawing(self, distance, angle, targets, targets_precedente, iterazione):
         self.draw_diagram()
@@ -185,6 +189,7 @@ class Display:
             self.drawing_target(targets)
         if iterazione == 2:
             self.drawing_target(targets_precedente)
+            time.sleep(1)
             self.drawing_target(targets)
         if iterazione == 3:
             self.draw_single_element(distance, angle, 1)
