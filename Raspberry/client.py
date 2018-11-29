@@ -97,6 +97,10 @@ def find_element(array1, array2):
             # Add element
             staticElement[i] = firstArrayElement
 
+def reset_servo_position():
+    p.ChangeDutyCycle(10.5)
+    time.sleep(1)
+
 # First and Second revelations array
 first_index = []
 second_index = []
@@ -121,42 +125,50 @@ def sendAngleLaser(dict):
     # Laser OFF
     GPIO.output(LASER, GPIO.LOW)
 
+    # Reset radar targets
+    send_message(-1, -1)
+
 
 try:
     # LED ON
     blue.on()
 
-    # Sx to Dx
-    for angle in range(CYCLE-1, -1, -1):
-        config_servo(angle)
-        dist = measure()
-        first_index.append(dist)
-        send_message(dist, angle)
-        time.sleep(angleSleep)
+    while True:
 
-    time.sleep(1)
-    
-    # Dx to Sx
-    for angle in range (0, CYCLE):
-        config_servo(angle)
-        dist = measure()
-        second_index.append(dist)
-        send_message(dist, angle)
-        time.sleep(angleSleep)
+        # Sx to Dx
+        for angle in range(CYCLE-1, -1, -1):
+            # LED ON
+            blue.on()
+            config_servo(angle)
+            dist = measure()
+            first_index.append(dist)
+            send_message(dist, angle)
+            time.sleep(angleSleep)
 
-    # Reset radar targets
-    send_message(-1, -1)
-    # LED OFF
-    blue.off()
-    find_element(first_index, second_index)
-    sendAngleLaser(staticElement)
+        # Change previous targets color
+        #send_message(-2, -2)
+        time.sleep(1)
+
+        # Dx to Sx
+        for angle in range(0, CYCLE):
+            config_servo(angle)
+            dist = measure()
+            second_index.append(dist)
+            send_message(dist, angle)
+            time.sleep(angleSleep)
+
+        # Reset radar targets
+        send_message(-1, -1)
+        # LED OFF
+        blue.off()
+        find_element(first_index, second_index)
+        sendAngleLaser(staticElement)
+        reset_servo_position()
 
 except KeyboardInterrupt:
     print("Stop")
 
 finally:
-    p.ChangeDutyCycle(10.5)
-    time.sleep(1)
     p.stop()
     clientSocket.close()
     GPIO.cleanup()

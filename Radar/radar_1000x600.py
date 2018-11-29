@@ -24,8 +24,10 @@ pygame.font.init()
 defaultFont = pygame.font.get_default_font()
 
 fontRenderer = pygame.font.Font(defaultFont, 20)
+titleFont = pygame.font.SysFont('Agency FB', 60)
 
 radarDisplay = pygame.display.set_mode((1000, 600), pygame.RESIZABLE)
+
 
 pygame.display.set_caption('Raspadar')
 
@@ -39,7 +41,16 @@ status = 0
 # targets list
 targets = {}
 
+# Welcome Screen
+radarDisplay.fill(colors.black)
+text = titleFont.render("Welcome to Raspadar!", 1, colors.gray)
+text_x = 500 - text.get_rect().width/2
+text_y = 300 - text.get_rect().height/2
+radarDisplay.blit(text, (text_x, text_y))
+pygame.display.update()
+
 try:
+
     
     while True:
 
