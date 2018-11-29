@@ -14,8 +14,8 @@ class Display:
     CENTER_RADAR_X = 500
     CENTER_RADAR_Y = 600
     DIS_MAX = 51
-    SIZE_OBJ = 5
-    SIZE_FIRST = 10
+    SIZE_OBJ = 4
+    SIZE_FIRST = 8
 
     # initializes Pygame
     os.environ['SDL_VIDEO_CENTERED'] = '1'
@@ -26,6 +26,7 @@ class Display:
     fontRenderer = pygame.font.Font(defaultFont, 16)
     bangFont = pygame.font.Font(defaultFont, 20)
     labelFont = pygame.font.SysFont('Comic Sans MS', 16)
+    degreeFont = pygame.font.Font(defaultFont, 20)
     titleFont = pygame.font.SysFont('Agency FB', 60)
     subtitleFont = pygame.font.SysFont('Agency FB', 30)
 
@@ -104,7 +105,7 @@ class Display:
         # 45 degree line
         pygame.draw.line(self.radarDisplay, colors.green, (500, 600),(154, 255), 1)
         # 90 degree line
-        pygame.draw.line(self.radarDisplay, colors.green, (500, 600), (500, 80), 1)
+        pygame.draw.line(self.radarDisplay, colors.green, (500, 600), (500, 105), 1)
         # 135 degree line
         pygame.draw.line(self.radarDisplay, colors.green, (500, 600), (845, 255), 1)
         
@@ -112,24 +113,24 @@ class Display:
         pygame.draw.rect(self.radarDisplay, colors.blue, [20, 10, 270, 90], 2)
 
         # write the 0 degree
-        text = self.fontRenderer.render("0", 1, colors.forestgreen)
-        self.radarDisplay.blit(text,(20,560))
+        text = self.degreeFont.render("0", 1, colors.forestgreen)
+        self.radarDisplay.blit(text,(20,570))
 
         # write the 45 degree
-        text = self.fontRenderer.render("45", 1, colors.forestgreen)
+        text = self.degreeFont.render("45", 1, colors.forestgreen)
         self.radarDisplay.blit(text,(135,230))
 
         # write the 90 degree
-        text = self.fontRenderer.render("90", 1, colors.forestgreen)
-        self.radarDisplay.blit(text,(490,60))
+        text = self.degreeFont.render("90", 1, colors.forestgreen)
+        self.radarDisplay.blit(text,(490,80))
 
         # write the 135 degree
-        text = self.fontRenderer.render("135", 1, colors.forestgreen)
+        text = self.degreeFont.render("135", 1, colors.forestgreen)
         self.radarDisplay.blit(text,(845, 230))
 
         # write the 180 degree
-        text = self.fontRenderer.render("180", 1, colors.forestgreen)
-        self.radarDisplay.blit(text,(960,560))
+        text = self.degreeFont.render("180", 1, colors.forestgreen)
+        self.radarDisplay.blit(text,(955,570))
 
 
         # write distance
