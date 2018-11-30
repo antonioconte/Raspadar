@@ -200,7 +200,7 @@ class Display:
         if iterazione == 3:
             self.draw_single_element(distance, angle, 1)
 
-        if (distance >= 2.0) and (distance <= 51.0) and iterazione != 3:
+        if (distance >= 2.0) and (distance <= 50.0) and iterazione != 3:
             self.draw_single_element(distance, angle, 0)
 
         self.draw_line(angle)
@@ -252,8 +252,7 @@ def draw_point(distance, angle):
     elif (distance > -1) and (distance <= 50):
         targets[angle] = Target(angle, distance)
 
-    if distance > 0:
-        display.drawing(distance, angle, targets, previous_targets, iterazione)
+    display.drawing(distance, angle, targets, previous_targets, iterazione)
 
 
 # ricezione mex dal client

@@ -1,5 +1,4 @@
 import RPi.GPIO as GPIO
-from gpiozero import LED
 from config import serverName, serverPort
 import socket
 import time
@@ -21,12 +20,13 @@ TRIG = 19
 ECHO = 26
 SERVO = 4
 LASER = 13
-blue = LED(22)
+LED = 22
 
 GPIO.setup(TRIG, GPIO.OUT)
 GPIO.setup(ECHO, GPIO.IN)
 GPIO.setup(SERVO, GPIO.OUT)
 GPIO.setup(LASER, GPIO.OUT)
+GPIO.setup(LED, GPIO.OUT)
 
 p = GPIO.PWM(SERVO, 50)
 # Move servo to initial position
@@ -36,10 +36,14 @@ p.start(dc)
 angleSleep = 0.05
 
 clientSocket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-time.sleep(3)
+time.sleep(1)
 
 # StaticElement dictionar between first and second relevations 
 staticElement = {}
+
+# First and Second revelations array
+first_index = []
+second_index = []
 
 def measure():
     GPIO.output(TRIG, False)
@@ -102,11 +106,12 @@ def reset_servo_position():
     send_message(-3, -3)
     p.ChangeDutyCycle(10.5)
     time.sleep(1)
+    global first_index, second_index, staticElement
+    # Clean array, dict
+    first_index = list()
+    second_index = list()
+    staticElement = dict()
 
-
-# First and Second revelations array
-first_index = []
-second_index = []
 
 # Take angle and distance of min value of dictionar
 # Send values to radar
@@ -128,12 +133,12 @@ def sendAngleLaser(dict):
     # Laser OFF
     GPIO.output(LASER, GPIO.LOW)
 
-
 try:
-    # LED ON
-    blue.on()
 
     while True:
+
+        # LED ON
+        GPIO.output(LED, GPIO.HIGH)
 
         # Sx to Dx
         for angle in range(CYCLE-1, -1, -1):
@@ -158,16 +163,25 @@ try:
         # Reset radar targets
         send_message(-1, -1)
         # LED OFF
-        blue.off()
+        GPIO.output(LED, GPIO.LOW)
         find_element(first_index, second_index)
         sendAngleLaser(staticElement)
         reset_servo_position()
 
+
 except KeyboardInterrupt:
     print("Stop")
 
+
 finally:
+    send_message(-3, -3)
+    # clean arrays
+    first_index = []
+    second_index = []
+    p.ChangeDutyCycle(10.5)
+    time.sleep(1)
     p.stop()
     clientSocket.close()
     GPIO.cleanup()
+    sys.exit()
 

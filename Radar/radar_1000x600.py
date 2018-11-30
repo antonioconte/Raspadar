@@ -103,36 +103,36 @@ class Display:
         Y_135 = CENTER - 339
 
         # 45 degree line
-        pygame.draw.line(self.radarDisplay, colors.green,
+        pygame.draw.line(self.radarDisplay, c.green,
                          (500, 600), (154, 255), 1)
         # 90 degree line
-        pygame.draw.line(self.radarDisplay, colors.green,
+        pygame.draw.line(self.radarDisplay, c.green,
                          (500, 600), (500, 105), 1)
         # 135 degree line
-        pygame.draw.line(self.radarDisplay, colors.green,
+        pygame.draw.line(self.radarDisplay, c.green,
                          (500, 600), (845, 255), 1)
 
         # draw stastics board
-        pygame.draw.rect(self.radarDisplay, colors.blue, [20, 10, 270, 90], 2)
+        pygame.draw.rect(self.radarDisplay, c.blue, [20, 10, 270, 90], 2)
 
         # write the 0 degree
-        text = self.degreeFont.render("0", 1, colors.forestgreen)
+        text = self.degreeFont.render("0", 1, c.forestgreen)
         self.radarDisplay.blit(text, (20, 570))
 
         # write the 45 degree
-        text = self.degreeFont.render("45", 1, colors.forestgreen)
+        text = self.degreeFont.render("45", 1, c.forestgreen)
         self.radarDisplay.blit(text, (135, 230))
 
         # write the 90 degree
-        text = self.degreeFont.render("90", 1, colors.forestgreen)
+        text = self.degreeFont.render("90", 1, c.forestgreen)
         self.radarDisplay.blit(text, (490, 80))
 
         # write the 135 degree
-        text = self.degreeFont.render("135", 1, colors.forestgreen)
+        text = self.degreeFont.render("135", 1, c.forestgreen)
         self.radarDisplay.blit(text, (845, 230))
 
         # write the 180 degree
-        text = self.degreeFont.render("180", 1, colors.forestgreen)
+        text = self.degreeFont.render("180", 1, c.forestgreen)
         self.radarDisplay.blit(text, (955, 570))
 
         # write distance
@@ -210,7 +210,7 @@ class Display:
         if iterazione == 3:
             self.draw_single_element(distance, angle, 1)
 
-        if (distance >= 2.0) and (distance <= 51.0) and iterazione != 3:
+        if (distance >= 2.0) and (distance <= 50.0) and iterazione != 3:
             self.draw_single_element(distance, angle, 0)
 
         self.draw_line(angle)
@@ -242,7 +242,7 @@ def draw_point(distance, angle, passata):
     if distance == -2:
         # cmabio il colore a Target
         for angle in list(targets):
-            targets[angle].color = colors.red6L
+            targets[angle].color = c.red6L
         display.drawing_target(targets)
         previous_targets = targets.copy()
         targets.clear()
@@ -260,8 +260,8 @@ def draw_point(distance, angle, passata):
     elif (distance > -1) and (distance <= 50):
         targets[angle] = Target(angle, distance)
 
-    if distance > 0:
-        display.drawing(distance, angle, targets, previous_targets, iterazione)
+
+    display.drawing(distance, angle, targets, previous_targets, iterazione)
 
 
 try:
@@ -271,9 +271,8 @@ try:
         distance, ang = message.split('@')
         distance = float(distance)
         oppositeAngle = float(ang)
-        angle = 180-oppositeAngle
+        angle = 180 - oppositeAngle
         draw_point(distance, angle, iterazione)
-
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 raise Exception('Quit')
