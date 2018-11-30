@@ -1,14 +1,14 @@
 # Raspadar
 Progetto di Fisica dei Sistemi Complessi AA 2017-18
 
-## Raspberry
+### Raspberry
 
 Gestisce il servomotore, calcola la distanza attraverso il sensore ad ultrasuoni HC-SR04, invia i dati al radar e punta l'oggetto più vicino rimasto invariato dalle due iterate
 ```console
 foo@bar: ~ $ python client.py
 ```
 
-## Radar
+### Radar
 
 Visualizzazione grafica su radar del funzionamento del sistema
 
@@ -19,9 +19,11 @@ Risoluzioni:
 ```console
 foo@bar: ~ $ python radar_[resolution].py
 ```
+### Schema
 
+<img src="https://github.com/antonioconte/Raspadar/blob/master/Schema/schema.png?raw=true" width="350">
 
-## ScriptTestMisure
+### ScriptTestMisure
 
 Utilizzato per fare test sull'accuratezza del sensore HC-SR04
 #### client.py (Raspberry)
