@@ -20,6 +20,7 @@ class Display:
     # initializes Pygame
     os.environ['SDL_VIDEO_CENTERED'] = '1'
     pygame.init()
+
     radarDisplay = pygame.display.set_mode((WIDGHT, HEIGHT))
     center_radar = (CENTER_RADAR_X, CENTER_RADAR_Y)
     defaultFont = pygame.font.get_default_font()
@@ -28,6 +29,7 @@ class Display:
     titleFont = pygame.font.SysFont('Agency FB', 60)
     subtitleFont = pygame.font.SysFont('Agency FB', 30)
 
+    # dimensioni massime Radar pixel e cm
     MAX_RANGE_PX = 700
     MAX_RANGE_CM = 50
 
@@ -44,6 +46,7 @@ class Display:
         self.radarDisplay.blit(text, (text_x, text_y))
         pygame.display.update()
 
+    # setting drawing radar display
     def draw_diagram(self):
         self.radarDisplay.fill(c.black)
         RANGE_50 = self.get_distance(50)
@@ -79,11 +82,11 @@ class Display:
         pygame.draw.circle(self.radarDisplay, c.darkgreen,
                            self.center_radar,  RANGE_5, 1)
 
-        # draw under radar
+        # draw under radar - barra nera sotto il radar
         self.radarDisplay.fill(
             c.black, [0, self.CENTER_RADAR_Y+1, self.WIDGHT, 19])
 
-        # horizental line
+        # horizontal line
         HL_start = 70
         HL_end = self.WIDGHT - 70
         CENTER = self.WIDGHT / 2
@@ -92,6 +95,7 @@ class Display:
 
         # x,y = raggio * cos(45))
         # 730 * cos(45) = 516
+
         # 45 degree line
         X_45 = CENTER - 516
         Y_45 = CENTER - 516
@@ -125,6 +129,7 @@ class Display:
             text_y = label_y[i] - (text.get_rect().height)/2
             self.radarDisplay.blit(text, (text_x, text_y))
 
+    # gestisco lo spazio in alto a sinistra relativo alle info sulla distanza
     def print_informations(self, distance, angle):
         # write angle
         message = "Angle : " + str(angle)
@@ -143,18 +148,20 @@ class Display:
         # draw stastics board
         pygame.draw.rect(self.radarDisplay, colors.blue, [20, 10, 225, 80], 2)
 
-    def get_distance(self, distance):
-        x = int(self.MAX_RANGE_PX * distance / self.MAX_RANGE_CM)
-        return x
-
+    # line_radar blue
     def draw_line(self, angle):
-        # line_radar blue
         radius = float(self.MAX_RANGE_PX)
         r_x = math.cos(math.radians(angle)) * radius
         r_y = math.sin(math.radians(angle)) * radius
         pygame.draw.line(self.radarDisplay, c.blue, self.center_radar,
                          (self.CENTER_RADAR_X-int(r_x), self.CENTER_RADAR_Y-int(r_y)), 3)
 
+    # calcolo a che distanza il punto sul radar
+    def get_distance(self, distance):
+        x = int(self.MAX_RANGE_PX * distance / self.MAX_RANGE_CM)
+        return x
+
+    # calcolo le coordinate del punto da disegnare
     def get_position_element(self, distance, angle):
         obj_x = math.cos(math.radians(angle)) * self.get_distance(distance)
         obj_y = math.sin(math.radians(angle)) * self.get_distance(distance)
@@ -162,8 +169,8 @@ class Display:
                     self.CENTER_RADAR_Y - int(obj_y))
         return position
 
+    # disegno l'elemento rilevato (head of the sneak)
     def draw_single_element(self, distance, angle, info):
-        # la testa sarebbe l'elemento rilevato in quell'istante
         position = self.get_position_element(distance, angle)
         if info == 0:
             color = c.yellow
@@ -171,15 +178,15 @@ class Display:
             color = c.orange
         pygame.draw.circle(self.radarDisplay, color, position, self.SIZE_FIRST)
 
+    # disegno i punti precedentemente individuati (body of snake)
     def drawing_target(self, targets):
-        print(targets.keys)
-        print(targets.values)
         for angle in list(targets):
             position = position = self.get_position_element(
                 targets[angle].distance, targets[angle].angle)
             pygame.draw.circle(self.radarDisplay,
-                               targets[angle].color, position, self.SIZE_OBJ)       
+                               targets[angle].color, position, self.SIZE_OBJ)
 
+    # funzione che gestisce l'intero disegno
     def drawing(self, distance, angle, targets, targets_precedente, iterazione):
         self.draw_diagram()
         if distance > 0:
@@ -189,7 +196,6 @@ class Display:
             self.drawing_target(targets)
         if iterazione == 2:
             self.drawing_target(targets_precedente)
-            time.sleep(1)
             self.drawing_target(targets)
         if iterazione == 3:
             self.draw_single_element(distance, angle, 1)
@@ -200,6 +206,7 @@ class Display:
         self.draw_line(angle)
         pygame.display.update()
 
+    # chiudere l'applicazione
     def stop_radar(self):
         print("STOP")
         time.sleep(2)
@@ -217,7 +224,7 @@ targets = dict()
 previous_targets = dict()
 iterazione = 1
 
-
+# gestione parametri ricevuti dal client e creazione del serpente
 def draw_point(distance, angle):
     global targets
     global previous_targets
@@ -228,7 +235,8 @@ def draw_point(distance, angle):
         for angle in list(targets):
             targets[angle].color = colors.red6L
         display.drawing_target(targets)
-        previous_targets = targets
+        previous_targets = targets.copy()
+        targets.clear()
         iterazione = 2
         return None
     elif distance == -1:
@@ -241,7 +249,7 @@ def draw_point(distance, angle):
 
     display.drawing(distance, angle, targets, previous_targets, iterazione)
 
-
+# ricezione mex dal client
 try:
     while True:
         message = serverSocket.recv(2048)
@@ -254,6 +262,7 @@ try:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 raise Exception('Quit')
+
 except (KeyboardInterrupt, Exception) as e:
     print(repr(e))
 finally:
