@@ -225,6 +225,8 @@ previous_targets = dict()
 iterazione = 1
 
 # gestione parametri ricevuti dal client e creazione del serpente
+
+
 def draw_point(distance, angle):
     global targets
     global previous_targets
@@ -238,16 +240,21 @@ def draw_point(distance, angle):
         previous_targets = targets.copy()
         targets.clear()
         iterazione = 2
-        return None
     elif distance == -1:
         # pulisco Targets
         targets.clear()
         previous_targets.clear()
         iterazione = 3
+    elif distance == -3:
+        targets.clear()
+        previous_targets.clear()
+        iterazione = 1
     elif (distance > -1) and (distance <= 50):
         targets[angle] = Target(angle, distance)
 
-    display.drawing(distance, angle, targets, previous_targets, iterazione)
+    if distance > 0:
+        display.drawing(distance, angle, targets, previous_targets, iterazione)
+
 
 # ricezione mex dal client
 try:
