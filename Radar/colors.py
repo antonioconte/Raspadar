@@ -31,7 +31,9 @@ darkgreen = (8, 58, 13)
 yellow = (255, 255, 0)
 
 # orange
-orange = (255, 165, 0)
+orange = (255, 128, 0)
+
+cyano = (102, 255, 255)
 
 # blue
 blue = (0, 0, 205)

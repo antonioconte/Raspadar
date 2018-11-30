@@ -185,11 +185,10 @@ class Display:
             color = c.yellow
         elif info == 1:
             color = c.orange
-            text = self.bangFont.render("Bang", 1, c.red)
-            self.radarDisplay.blit(text, (40, 100))
+            text = self.bangFont.render("LASER ON", 1, c.red)
+            self.radarDisplay.blit(text, (40, 110))
 
         pygame.draw.circle(self.radarDisplay, color, position, self.SIZE_FIRST)
-        # pygame.display.update()
 
     def drawing_target(self, targets):
         for angle in list(targets):
