@@ -13,7 +13,7 @@ foo@bar: ~ $ python client.py
 Visualizzazione grafica su radar del funzionamento del sistema
 
 Risoluzioni:
-  - 1800x900
+  - 1600x820
   - 1000x600
 
 ```console
