@@ -97,9 +97,12 @@ def find_element(array1, array2):
             # Add element
             staticElement[i] = firstArrayElement
 
-def reset_servo_position():
+def reset_servo_position(): 
+    # Reset radar
+    send_message(-3, -3)
     p.ChangeDutyCycle(10.5)
     time.sleep(1)
+
 
 # First and Second revelations array
 first_index = []
@@ -125,9 +128,6 @@ def sendAngleLaser(dict):
     # Laser OFF
     GPIO.output(LASER, GPIO.LOW)
 
-    # Reset radar targets
-    send_message(-1, -1)
-
 
 try:
     # LED ON
@@ -144,7 +144,7 @@ try:
             time.sleep(angleSleep)
 
         # Change previous targets color
-        #send_message(-2, -2)
+        send_message(-2, -2)
         time.sleep(1)
 
         # Dx to Sx
