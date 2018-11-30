@@ -268,9 +268,10 @@ try:
     while True:
         message = serverSocket.recv(2048)
         message = str(message.decode())
-        distance, angle = message.split('@')
+        distance, oppositeAngle = message.split('@')
         distance = float(distance)
-        angle = float(angle)
+        oppositeAngle = float(oppositeAngle)
+        angle = 180 - oppositeAngle
         draw_point(distance, angle, iterazione)
 
         for event in pygame.event.get():
