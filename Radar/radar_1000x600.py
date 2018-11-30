@@ -245,7 +245,8 @@ def draw_point(distance, angle, passata):
         for angle in list(targets):
             targets[angle].color = colors.red6L
         display.drawing_target(targets)
-        previous_targets = targets
+        previous_targets = targets.copy()
+        targets.clear()
         iterazione = 2
         return None
     elif distance == -1:
@@ -253,10 +254,15 @@ def draw_point(distance, angle, passata):
         targets.clear()
         previous_targets.clear()
         iterazione = 3
+    elif distance == -3:
+        targets.clear()
+        previous_targets.clear()
+        iterazione = 1
     elif (distance > -1) and (distance <= 50):
         targets[angle] = Target(angle, distance)
 
-    display.drawing(distance, angle, targets, previous_targets, iterazione)
+    if distance > 0:
+        display.drawing(distance, angle, targets, previous_targets, iterazione)
 
 
 try:
